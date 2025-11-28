@@ -2,10 +2,13 @@ import time
 from collections import deque, defaultdict
 import os
 from telegram import Update
-from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
+from telegram.ext import Application, MessageHandler, filters, ContextTypes
 
-# Получаем токен из переменных окружения Render
+# Получаем токен из переменной окружения Render
 TOKEN = os.getenv("BOT_TOKEN")
+
+if not TOKEN:
+    raise ValueError("Переменная BOT_TOKEN не найдена!")
 
 # Для каждого пользователя храним очередь сообщений
 user_messages = defaultdict(deque)
@@ -31,11 +34,13 @@ async def message_counter(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_messages[user_id].clear()
 
 if __name__ == "__main__":
-    app = ApplicationBuilder().token(TOKEN).build()
+    # Создаем приложение
+    app = Application.builder().token(TOKEN).build()
+    
+    # Регистрируем обработчик сообщений
     app.add_handler(MessageHandler(filters.ALL, message_counter))
+    
     print("Бот запущен...")
     app.run_polling()
-
-
 
 
